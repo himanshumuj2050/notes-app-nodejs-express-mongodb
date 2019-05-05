@@ -13,7 +13,7 @@ const port = 5000;
  
 //Index route
 app.get('/', (req,res) => {
-    const title = 'Welcome1';
+    const title = 'Welcome';
     res.render('index', {
         title : title
     });
