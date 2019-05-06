@@ -1,6 +1,8 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
+const flash = require('connect-flash');
+const session = require('express-session');
 const methodOverride = require('method-override')
 const mongoose = require('mongoose');
 
@@ -32,7 +34,25 @@ app.use(bodyParser.json())
 //method-override middleware
 app.use(methodOverride('_method'))
 
+//express-session middleware
+app.use(session({
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true
+}))
+
+//connect-flash middleware
+app.use(flash());
+
 const port = 5000;
+
+//global variables
+app.use(function(req,res,next){
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    next();
+})
 
 //Index route
 app.get('/', (req, res) => {
@@ -104,6 +124,7 @@ app.post('/ideas', (req, res) => {
         new Idea(newUser)
             .save()
             .then(idea => {
+                req.flash('success_msg', 'Note successfully added');
                 res.redirect('/ideas')
             })
     }
@@ -122,6 +143,7 @@ app.put('/ideas/:id', (req, res) => {
 
             idea.save()
                 .then(idea => {
+                    req.flash('success_msg', 'Note successfully updated');
                     res.redirect('/ideas');
                 })
         })
@@ -133,6 +155,7 @@ app.delete('/ideas/:id', (req, res) => {
         _id: req.params.id
     })
         .then(() => {
+            req.flash('success_msg', 'Note successfully removed');
             res.redirect('/ideas');
         })
 });
