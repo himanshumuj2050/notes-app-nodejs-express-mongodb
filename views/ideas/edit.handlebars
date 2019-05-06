@@ -1,13 +1,13 @@
 <div class="card card-body">
-    <h3>Note</h3>
+    <h3>Edit note</h3>
     <form action="/ideas" method="post">
         <div class="form-group">
             <label for="title">Title</label>
-            <input type="text" class="form-control" name="title" required>
+            <input type="text" class="form-control" name="title" value="{{ideas.title}}" required>
         </div>
         <div class="form-group">
             <label for="details">Details</label>
-            <textarea class="form-control" name="details" required></textarea>
+            <textarea class="form-control" name="details" required>{{ideas.details}}</textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>

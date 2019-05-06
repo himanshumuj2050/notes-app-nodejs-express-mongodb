@@ -12,8 +12,8 @@ mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/notes-app-dev-db', {
     useNewUrlParser: true
 })
-.then( () => console.log('Mongodb Connected') )
-.catch( err => console.log(err) );
+    .then(() => console.log('Mongodb Connected'))
+    .catch(err => console.log(err));
 
 //Load model
 require('./models/Idea');
@@ -28,46 +28,79 @@ app.set('view engine', 'handlebars');
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 const port = 5000;
- 
+
 //Index route
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
     const title = 'Welcome';
     res.render('index', {
-        title : title
+        title: title
     });
 });
 
 //About route
-app.get('/about', (req,res) => {
+app.get('/about', (req, res) => {
     res.render('about');
 });
 
-app.get('/ideas/add', (req,res) => {
+
+//notes index page
+app.get('/ideas', (req, res) => {
+    Idea.find({})
+        .sort({ date: 'desc' })
+        .then(ideas => {
+            res.render('ideas/index', {
+                ideas: ideas
+            });
+        });
+});
+
+//add notes
+app.get('/ideas/add', (req, res) => {
     res.render('ideas/add');
 });
 
-app.post('/ideas', (req,res) => {
+//edit note
+app.get('/ideas/edit/:id', (req, res) => {
+    Idea.findOne({
+        _id: req.params.id
+    })
+        .then(idea => {
+            res.render('ideas/edit', {
+                ideas: idea
+            });
+        });
+});
+
+app.post('/ideas', (req, res) => {
     let errors = [];
 
-    if(!req.body.title){
+    if (!req.body.title) {
         errors.push({
-            text:'Please add a title'
+            text: 'Please add a title'
         });
     }
-    if(!req.body.details){
+    if (!req.body.details) {
         errors.push({
-            text:'Please add some details'
+            text: 'Please add some details'
         });
     }
 
-    if(errors.length > 0){
+    if (errors.length > 0) {
         res.render('ideas/add', {
             errors: errors,
-            title : req.body.title,
-            details : req.body.details
+            title: req.body.title,
+            details: req.body.details
         });
-    }else {
-        res.send('passed');
+    } else {
+        const newUser = {
+            title: req.body.title,
+            details: req.body.details
+        }
+        new Idea(newUser)
+            .save()
+            .then(idea => {
+                res.redirect('/ideas')
+            })
     }
 });
 
