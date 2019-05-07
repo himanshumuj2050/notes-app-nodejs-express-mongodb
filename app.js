@@ -16,11 +16,14 @@ const users = require('./routes/users');
 //Passport config
 require('./config/passport')(passport);
 
+//DB config
+const db = require('./config/database');
+
 // map global promise
 mongoose.Promise = global.Promise;
 
 //Mongoose connection
-mongoose.connect('mongodb://localhost/notes-app-dev-db', {
+mongoose.connect(db.mongoURI , {
     useNewUrlParser: true
 })
     .then(() => console.log('Mongodb Connected'))
@@ -52,7 +55,7 @@ app.use(passport.session());
 //connect-flash middleware
 app.use(flash());
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 //global variables
 app.use(function(req,res,next){
