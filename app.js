@@ -8,6 +8,10 @@ const mongoose = require('mongoose');
 
 const app = express();
 
+//load routes
+const ideas = require('./routes/ideas');
+const users = require('./routes/users');
+
 // map global promise
 mongoose.Promise = global.Promise;
 
@@ -17,10 +21,6 @@ mongoose.connect('mongodb://localhost/notes-app-dev-db', {
 })
     .then(() => console.log('Mongodb Connected'))
     .catch(err => console.log(err));
-
-//Load model
-require('./models/Idea');
-const Idea = mongoose.model('ideas');
 
 //handlebar middleware
 app.engine('handlebars', exphbs({
@@ -67,98 +67,9 @@ app.get('/about', (req, res) => {
     res.render('about');
 });
 
-
-//notes index page
-app.get('/ideas', (req, res) => {
-    Idea.find({})
-        .sort({ date: 'desc' })
-        .then(ideas => {
-            res.render('ideas/index', {
-                ideas: ideas
-            });
-        });
-});
-
-//add notes
-app.get('/ideas/add', (req, res) => {
-    res.render('ideas/add');
-});
-
-//edit note
-app.get('/ideas/edit/:id', (req, res) => {
-    Idea.findOne({
-        _id: req.params.id
-    })
-        .then(idea => {
-            res.render('ideas/edit', {
-                ideas: idea
-            });
-        });
-});
-
-app.post('/ideas', (req, res) => {
-    let errors = [];
-
-    if (!req.body.title) {
-        errors.push({
-            text: 'Please add a title'
-        });
-    }
-    if (!req.body.details) {
-        errors.push({
-            text: 'Please add some details'
-        });
-    }
-
-    if (errors.length > 0) {
-        res.render('ideas/add', {
-            errors: errors,
-            title: req.body.title,
-            details: req.body.details
-        });
-    } else {
-        const newUser = {
-            title: req.body.title,
-            details: req.body.details
-        }
-        new Idea(newUser)
-            .save()
-            .then(idea => {
-                req.flash('success_msg', 'Note successfully added');
-                res.redirect('/ideas')
-            })
-    }
-});
-
-
-//edit form process (PUT request)
-app.put('/ideas/:id', (req, res) => {
-    Idea.findOne({
-        _id: req.params.id
-    })
-        .then(idea => {
-            //new values
-            idea.title = req.body.title;
-            idea.details = req.body.details;
-
-            idea.save()
-                .then(idea => {
-                    req.flash('success_msg', 'Note successfully updated');
-                    res.redirect('/ideas');
-                })
-        })
-});
-
-//delete note
-app.delete('/ideas/:id', (req, res) => {
-    Idea.remove({
-        _id: req.params.id
-    })
-        .then(() => {
-            req.flash('success_msg', 'Note successfully removed');
-            res.redirect('/ideas');
-        })
-});
+//use routes
+app.use('/ideas', ideas);
+app.use('/users', users);
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
