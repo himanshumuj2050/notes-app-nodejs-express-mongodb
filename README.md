@@ -4,6 +4,7 @@ This is a simple notes application build using Nodejs,Express and Mongodb.
 
 Functionalities -
 User Register/Login using Passport.js local strategy.
+
 After successful login, users can add notes/tasks and later update or delete them.
 Database using mongodb(hosted on mongo atlas - cloud database).
 Password hashing using BCrtypjs.
